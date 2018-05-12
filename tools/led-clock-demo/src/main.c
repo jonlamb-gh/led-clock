@@ -300,6 +300,11 @@ int main(
         {
             gui_render();
         }
+
+        if(gui_is_window_closed() != 0)
+        {
+            g_exit_signaled = 1;
+        }
     }
 
     gui_fini();

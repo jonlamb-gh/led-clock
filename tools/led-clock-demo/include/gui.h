@@ -16,6 +16,8 @@ int gui_init(
 
 void gui_fini(void);
 
+int gui_is_window_closed(void);
+
 void gui_render(void);
 
 #endif /* GUI_H */

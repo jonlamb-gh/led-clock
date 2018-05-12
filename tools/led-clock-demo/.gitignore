@@ -1,2 +1,3 @@
+bin/led-clock-demo
 src/*.o
 src/*.dep
