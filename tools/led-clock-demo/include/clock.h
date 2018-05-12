@@ -18,6 +18,8 @@
 
 #define CLOCK_LIGHT_COUNT (12)
 
+#define CLOCK_TICK_PER_SEC (10UL)
+
 typedef struct
 {
     color_4d_s color;
@@ -29,7 +31,7 @@ typedef struct
 {
     double base_w;
     double base_h;
-    unsigned long long ticks;
+    unsigned long ticks;
     clock_light_s lights[CLOCK_LIGHT_COUNT];
 } clock_s;
 

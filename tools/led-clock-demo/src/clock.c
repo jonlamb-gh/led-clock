@@ -96,7 +96,7 @@ void clock_init(
     for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
     {
         init_clock_light(
-                ((GLdouble) idx) * step,
+                -(((GLdouble) idx) * step) + 90.0,
                 &clock->lights[idx]);
     }
 }
@@ -112,5 +112,60 @@ void clock_display(
 void clock_tick_inc(
         clock_s * const clock)
 {
-    printf("tick\n");
+    const unsigned long seconds = (clock->ticks / CLOCK_TICK_PER_SEC);
+
+    const unsigned long index = (seconds / 5);
+
+    printf("ticks: %lu\n", clock->ticks);
+    printf("seconds: %lu\n", seconds);
+    printf("index: %lu\n", index);
+    printf("\n");
+
+    //const GLdouble angle = (360.0 / 60.0) * (GLdouble) seconds;
+
+    clock->lights[index].state = 1;
+    clock->lights[index].color.rgba[0] = 0.0;
+    clock->lights[index].color.rgba[1] = 0.0;
+    clock->lights[index].color.rgba[2] += 0.02;
+    clock->lights[index].color.rgba[3] += 0.02;
+
+    // reset ticks
+    clock->ticks += 1;
+
+    if(clock->ticks >= (CLOCK_TICK_PER_SEC * 60))
+    {
+        clock->ticks = 0;
+    }
+
+/*
+    unsigned long idx;
+    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
+    {
+        clock->lights[idx].state += 1;
+
+        if(clock->lights[idx].state < 255)
+        {
+            clock->lights[idx].color.rgba[0] += 0.01;
+            clock->lights[idx].color.rgba[3] += 0.01;
+        }
+        else if(clock->lights[idx].state == 255)
+        {
+            clock->lights[idx].color.rgba[1] = 0.0;
+            clock->lights[idx].color.rgba[3] = 0.0;
+        }
+        else if(clock->lights[idx].state < 510)
+        {
+            clock->lights[idx].color.rgba[1] += 0.01;
+            clock->lights[idx].color.rgba[3] += 0.01;
+        }
+        else if(clock->lights[idx].state > 765)
+        {
+            clock->lights[idx].state = 0;
+            clock->lights[idx].color.rgba[0] = 0.0;
+            clock->lights[idx].color.rgba[1] = 0.0;
+            clock->lights[idx].color.rgba[2] = 0.0;
+            clock->lights[idx].color.rgba[3] = 0.0;
+        }
+    }
+*/
 }
