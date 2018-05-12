@@ -4,7 +4,11 @@
 
 TARGET := bin/led-clock-demo
 
-SRCS := src/atimer.c src/gui.c src/main.c
+SRCS := src/atimer.c \
+		src/render.c \
+		src/clock.c \
+		src/gui.c \
+		src/main.c
 
 OBJS := $(SRCS:.c=.o)
 DEPS := $(SRCS:.c=.dep)

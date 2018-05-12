@@ -40,6 +40,14 @@
 #endif
 
 /**
+ * @brief Degrees to radians.
+ *
+ */
+#ifndef RAD
+#define RAD(d) ((d)*(M_PI/180.0))
+#endif
+
+/**
  * @brief Constrain amount to the range low:high.
  *
  */

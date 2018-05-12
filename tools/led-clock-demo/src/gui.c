@@ -13,6 +13,7 @@
 #include "gl_headers.h"
 #include "gui_types.h"
 #include "gui_util.h"
+#include "clock.h"
 #include "gui.h"
 
 static gui_s g_gui;
@@ -37,14 +38,18 @@ static void gl_reshape_func(
         int w,
         int h)
 {
-    const double dw = (double) w;
-    const double dh = (double) h;
-
     glViewport(0, 0, w, h);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
+    /*
+    const double dw = (double) w;
+    const double dh = (double) h;
+    */
+
+    const double dw = CLOCK_WIDTH + GUI_WINDOW_BORDER_SIZE;
+    const double dh = CLOCK_HEIGHT + GUI_WINDOW_BORDER_SIZE;
     gluOrtho2D(-dw/2.0, dw/2.0, -dh/2.0, dh/2.0);
 
     glMatrixMode(GL_MODELVIEW);
@@ -68,7 +73,7 @@ static void gl_display_func(void)
 
     glEnable(GL_BLEND);
 
-    // TODO
+    clock_display(&g_gui.clock);
 
     glutSwapBuffers();
 }
@@ -100,6 +105,11 @@ int gui_init(
     if(g_gui.window.id < 0)
     {
         ret = 1;
+    }
+    
+    if(ret == 0)
+    {
+        clock_init(&g_gui.clock);
     }
 
     if(ret == 0)
