@@ -82,14 +82,9 @@ static void init_clock_light(
     light->state = 0;
 }
 
-void clock_init(
+static void init_lights(
         clock_s * const clock)
 {
-    clock->base_w = CLOCK_WIDTH;
-    clock->base_h = CLOCK_HEIGHT;
-
-    clock->ticks = 0;
-
     const GLdouble step = (360.0 / 12);
 
     unsigned long idx;
@@ -99,6 +94,17 @@ void clock_init(
                 -(((GLdouble) idx) * step) + 90.0,
                 &clock->lights[idx]);
     }
+}
+
+void clock_init(
+        clock_s * const clock)
+{
+    clock->base_w = CLOCK_WIDTH;
+    clock->base_h = CLOCK_HEIGHT;
+
+    clock->ticks = 0;
+
+    init_lights(clock);
 }
 
 void clock_display(
@@ -135,6 +141,7 @@ void clock_tick_inc(
     if(clock->ticks >= (CLOCK_TICK_PER_SEC * 60))
     {
         clock->ticks = 0;
+        init_lights(clock);
     }
 
 /*
