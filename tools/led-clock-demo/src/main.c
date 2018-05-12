@@ -298,7 +298,7 @@ int main(
 
         if(redraw_events != 0)
         {
-            gui_render();
+            gui_display();
         }
 
         if(gui_is_window_closed() != 0)

@@ -22,6 +22,57 @@ static void gl_close_func(void)
     g_gui.window.id = -1;
 }
 
+static void gl_key_func(
+        unsigned char key,
+        int x,
+        int y)
+{
+    if((key == '\e') || (key == 'q'))
+    {
+        gl_close_func();
+    }
+}
+
+static void gl_reshape_func(
+        int w,
+        int h)
+{
+    const double dw = (double) w;
+    const double dh = (double) h;
+
+    glViewport(0, 0, w, h);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    gluOrtho2D(-dw/2.0, dw/2.0, -dh/2.0, dh/2.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    g_gui.window.width = (unsigned long) w;
+    g_gui.window.height = (unsigned long) h;
+
+    glutPostRedisplay();
+}
+
+static void gl_display_func(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+
+    glColor4d(1.0, 1.0, 1.0, 1.0);
+    glLineWidth((GLfloat) GUI_DEFAULT_LINE_WIDTH);
+
+    glPointSize(1.0f);
+
+    glEnable(GL_BLEND);
+
+    // TODO
+
+    glutSwapBuffers();
+}
+
 int gui_init(
         const char * const win_title,
         const unsigned long width,
@@ -54,14 +105,9 @@ int gui_init(
     if(ret == 0)
     {
         glutCloseFunc(gl_close_func);
-        /*
-        glutKeyboardFunc(on_key);
-        glutSpecialFunc(on_special_key);
-        glutMouseFunc(on_mouse);
-        glutMotionFunc(on_mouse_motion);
-        glutReshapeFunc(on_resize);
-        glutDisplayFunc(on_draw);
-        */
+        glutReshapeFunc(gl_reshape_func);
+        glutDisplayFunc(gl_display_func);
+        glutKeyboardFunc(gl_key_func);
 
         glDisable(GL_DEPTH);
         glDisable(GL_LIGHTING);
@@ -117,7 +163,7 @@ int gui_is_window_closed(void)
     return ret;
 }
 
-void gui_render(void)
+void gui_display(void)
 {
     if(g_gui.window.id >= 0)
     {

@@ -18,6 +18,6 @@ void gui_fini(void);
 
 int gui_is_window_closed(void);
 
-void gui_render(void);
+void gui_display(void);
 
 #endif /* GUI_H */
