@@ -8,7 +8,6 @@
 #define GUI_TYPES_H
 
 #include "gl_headers.h"
-#include "clock.h"
 
 typedef struct
 {
@@ -17,19 +16,15 @@ typedef struct
 
 typedef struct
 {
+    GLdouble xy[2];
+} point_2d_s;
+
+typedef struct
+{
     int id;
     unsigned long width;
     unsigned long height;
     char title[256];
 } gui_window_s;
-
-typedef struct
-{
-    int gl_argc;
-    char **gl_argv;
-    GLenum gl_err;
-    gui_window_s window;
-    clock_s clock;
-} gui_s;
 
 #endif /* GUI_TYPES_H */

@@ -25,33 +25,61 @@ static void render_base(
 }
 
 static void render_light(
-        const GLdouble cx,
-        const GLdouble cy,
-        const clock_s * const clock)
+        const clock_light_s * const light)
 {
     glColor4d(1.0, 1.0, 1.0, 0.6);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    render_circle_2d(cx, cy, CLOCK_LIGHT_RADIUS, 1);
+    render_circle_2d(
+            light->pos.xy[0],
+            light->pos.xy[1],
+            CLOCK_LIGHT_RADIUS,
+            1);
+
+    if(light->state != 0)
+    {
+        glColor4dv(&light->color.rgba[0]);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        render_circle_2d(
+                light->pos.xy[0],
+                light->pos.xy[1],
+                CLOCK_LIGHT_RADIUS,
+                1);
+    }
 
     glLineWidth(3.0f);
     glColor4d(0, 0, 0, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    render_circle_2d(cx, cy, CLOCK_LIGHT_RADIUS, 0);
+    render_circle_2d(
+            light->pos.xy[0],
+            light->pos.xy[1],
+            CLOCK_LIGHT_RADIUS,
+            0);
 }
 
 static void render_light_assembly(
         const clock_s * const clock)
 {
-    const double step = (360.0 / 12);
-
-    double angle;
-    for(angle = 0; angle < 360.0; angle += step)
+    unsigned long idx;
+    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
     {
-        const GLdouble x = CLOCK_RADIUS * cos(RAD(angle));
-        const GLdouble y = CLOCK_RADIUS * sin(RAD(angle));
-
-        render_light(x, y, clock);
+        render_light(
+                &clock->lights[idx]);
     }
+}
+
+static void init_clock_light(
+        const GLdouble angle,
+        clock_light_s * const light)
+{
+    light->color.rgba[0] = 0.0;
+    light->color.rgba[1] = 0.0;
+    light->color.rgba[2] = 0.0;
+    light->color.rgba[3] = 0.0;
+
+    light->pos.xy[0] = CLOCK_RADIUS * cos(RAD(angle));
+    light->pos.xy[1] = CLOCK_RADIUS * sin(RAD(angle));
+
+    light->state = 0;
 }
 
 void clock_init(
@@ -59,6 +87,18 @@ void clock_init(
 {
     clock->base_w = CLOCK_WIDTH;
     clock->base_h = CLOCK_HEIGHT;
+
+    clock->ticks = 0;
+
+    const GLdouble step = (360.0 / 12);
+
+    unsigned long idx;
+    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
+    {
+        init_clock_light(
+                ((GLdouble) idx) * step,
+                &clock->lights[idx]);
+    }
 }
 
 void clock_display(
@@ -67,4 +107,10 @@ void clock_display(
     render_base(clock);
 
     render_light_assembly(clock);
+}
+
+void clock_tick_inc(
+        clock_s * const clock)
+{
+    printf("tick\n");
 }

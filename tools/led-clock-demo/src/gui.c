@@ -16,6 +16,15 @@
 #include "clock.h"
 #include "gui.h"
 
+typedef struct
+{
+    int gl_argc;
+    char **gl_argv;
+    GLenum gl_err;
+    gui_window_s window;
+    clock_s clock;
+} gui_s;
+
 static gui_s g_gui;
 
 static void gl_close_func(void)
@@ -181,4 +190,9 @@ void gui_display(void)
 
         glutMainLoopEvent();
     }
+}
+
+void gui_clock_tick_inc(void)
+{
+    clock_tick_inc(&g_gui.clock);
 }

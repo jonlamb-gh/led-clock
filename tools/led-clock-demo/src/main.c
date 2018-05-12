@@ -20,14 +20,13 @@
 #include "gui_types.h"
 #include "gui.h"
 
-#define TIMER_EVENT_GUI_REDRAW (0x01)
-
 enum option_e
 {
     OPTION_VERBOSE = 1,
-    OPTION_GUI_REDRAW_INTERVAL,
     OPTION_GUI_WIDTH,
-    OPTION_GUI_HEIGHT
+    OPTION_GUI_HEIGHT,
+    OPTION_GUI_REDRAW_INTERVAL,
+    OPTION_CLOCK_TICK_INTERVAL
 };
 
 static volatile sig_atomic_t g_exit_signaled;
@@ -80,6 +79,17 @@ static void gui_redraw_timer_callback(
     }
 }
 
+static void clock_tick_timer_callback(
+        union sigval data)
+{
+    if(data.sival_ptr != NULL)
+    {
+        events_broadcast(
+                EVENTS_CLOCK_TICK,
+                (events_context_s*) data.sival_ptr);
+    }
+}
+
 static void opt_exit(
         poptContext opt_ctx)
 {
@@ -95,13 +105,16 @@ int main(
     int ret = 0;
     int opt_verbose = 0;
     long opt_gui_redraw_intvl = (long) DEF_GUI_REDRAW_INTERVAL_MS;
+    long opt_clock_tick_intvl = (long) DEF_CLOCK_TICK_INTERVAL_MS;
     long opt_gui_width = (long) DEF_GUI_WIDTH;
     long opt_gui_height = (long) DEF_GUI_HEIGHT;
     struct sigaction sigact;
     poptContext opt_ctx;
     events_context_s events_ctx;
     atimer_s gui_redraw_timer;
+    atimer_s clock_tick_timer;
     struct itimerspec gui_redraw_timer_spec;
+    struct itimerspec clock_tick_timer_spec;
 
     const struct poptOption OPTIONS_TABLE[] =
     {
@@ -113,15 +126,6 @@ int main(
             OPTION_VERBOSE,
             "enable verbose output",
             NULL
-        },
-        {
-            "gui-redraw-interval",
-            'g',
-            POPT_ARG_LONG,
-            &opt_gui_redraw_intvl,
-            OPTION_GUI_REDRAW_INTERVAL,
-            "GUI redraw interval",
-            "1-N <milliseconds>"
         },
         {
             "width",
@@ -141,6 +145,24 @@ int main(
             "GUI height",
             "1-N <pixels>"
         },
+        {
+            "gui-redraw-interval",
+            'g',
+            POPT_ARG_LONG,
+            &opt_gui_redraw_intvl,
+            OPTION_GUI_REDRAW_INTERVAL,
+            "GUI redraw timer interval",
+            "1-N <milliseconds>"
+        },
+        {
+            "clock-tick-interval",
+            'c',
+            POPT_ARG_LONG,
+            &opt_clock_tick_intvl,
+            OPTION_CLOCK_TICK_INTERVAL,
+            "clock tick timer interval",
+            "1-N <milliseconds>"
+        },
         POPT_AUTOHELP
         POPT_TABLEEND
     };
@@ -159,16 +181,6 @@ int main(
         {
             opt_verbose = 1;
         }
-        else if(opt_ret == OPTION_GUI_REDRAW_INTERVAL)
-        {
-            if(opt_gui_redraw_intvl <= 0)
-            {
-                (void) fprintf(
-                        stderr,
-                        "GUI redraw interval must be greater than zero\n");
-                opt_exit(opt_ctx);
-            }
-        }
         else if(opt_ret == OPTION_GUI_WIDTH)
         {
             if(opt_gui_width <= 0)
@@ -186,6 +198,26 @@ int main(
                 (void) fprintf(
                         stderr,
                         "GUI height must be greater than zero\n");
+                opt_exit(opt_ctx);
+            }
+        }
+        else if(opt_ret == OPTION_GUI_REDRAW_INTERVAL)
+        {
+            if(opt_gui_redraw_intvl <= 0)
+            {
+                (void) fprintf(
+                        stderr,
+                        "GUI redraw timer interval must be greater than zero\n");
+                opt_exit(opt_ctx);
+            }
+        }
+        else if(opt_ret == OPTION_CLOCK_TICK_INTERVAL)
+        {
+            if(opt_clock_tick_intvl <= 0)
+            {
+                (void) fprintf(
+                        stderr,
+                        "clock tick timer interval must be greater than zero\n");
                 opt_exit(opt_ctx);
             }
         }
@@ -247,6 +279,28 @@ int main(
 
     if(ret == 0)
     {
+        ret = atimer_create(
+                clock_tick_timer_callback,
+                (void*) &events_ctx,
+                &clock_tick_timer);
+    }
+
+    if(ret == 0)
+    {
+        atimer_timespec_set_ms(
+                DEF_TIMER_START_DELAY_MS,
+                &clock_tick_timer_spec.it_value);
+    }
+
+    if(ret == 0)
+    {
+        atimer_timespec_set_ms(
+                (unsigned long) opt_clock_tick_intvl,
+                &clock_tick_timer_spec.it_interval);
+    }
+
+    if(ret == 0)
+    {
         ret = gui_init(
                 "led-clock-demo",
                 (unsigned long) opt_gui_width,
@@ -260,12 +314,18 @@ int main(
                 "starting timers");
     }
 
-    // enable timers
     if(ret == 0)
     {
         ret = atimer_set(
                 &gui_redraw_timer_spec,
                 &gui_redraw_timer);
+    }
+
+    if(ret == 0)
+    {
+        ret = atimer_set(
+                &clock_tick_timer_spec,
+                &clock_tick_timer);
     }
 
     // don't start if we've encountered an error
@@ -293,8 +353,13 @@ int main(
             ret |= pthread_mutex_unlock(&mutex);
         }
 
+        if((events & EVENTS_CLOCK_TICK) != 0)
+        {
+            gui_clock_tick_inc();
+        }
+
         const uint32_t redraw_events =
-                events & (EVENTS_GUI_REDRAW | EVENTS_BTN_PRESS | EVENTS_BTN_RELEASE);
+                events & (EVENTS_GUI_REDRAW | EVENTS_CLOCK_TICK);
 
         if(redraw_events != 0)
         {
@@ -308,6 +373,9 @@ int main(
     }
 
     gui_fini();
+
+    (void) atimer_destroy(&gui_redraw_timer);
+    (void) atimer_destroy(&clock_tick_timer);
 
     if(ret == 0)
     {

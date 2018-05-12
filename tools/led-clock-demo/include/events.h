@@ -12,10 +12,8 @@
 enum events_e
 {
     EVENTS_NONE = 0,
-    EVENTS_DATA_POLL = (1 << 0),
-    EVENTS_GUI_REDRAW = (1 << 1),
-    EVENTS_BTN_PRESS = (1 << 2),
-    EVENTS_BTN_RELEASE = (1 << 3)
+    EVENTS_CLOCK_TICK = (1 << 0),
+    EVENTS_GUI_REDRAW = (1 << 1)
 };
 
 typedef void (*events_broadcast_fx)(
