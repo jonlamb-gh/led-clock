@@ -8,6 +8,7 @@
 #define CLOCK_H
 
 #include "gui_types.h"
+#include "clock_state.h"
 
 // units: millimeter
 #define CLOCK_WIDTH (140.0)
@@ -16,10 +17,7 @@
 #define CLOCK_RADIUS (50.0)
 #define CLOCK_LIGHT_RADIUS (3.175)
 
-#define CLOCK_LIGHT_COUNT (12)
-
-#define CLOCK_TICK_PER_SEC (10UL)
-
+// GUI data structure
 typedef struct
 {
     color_4d_s color;
@@ -31,8 +29,8 @@ typedef struct
 {
     double base_w;
     double base_h;
-    unsigned long ticks;
-    clock_light_s lights[CLOCK_LIGHT_COUNT];
+    clock_light_s lights[CLOCK_DIGIT_LED_COUNT];
+    clock_state_s state;
 } clock_s;
 
 void clock_init(

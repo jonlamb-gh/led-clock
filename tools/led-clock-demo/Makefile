@@ -6,6 +6,7 @@ TARGET := bin/led-clock-demo
 
 SRCS := src/atimer.c \
 		src/render.c \
+		src/clock_state.c \
 		src/clock.c \
 		src/gui.c \
 		src/main.c

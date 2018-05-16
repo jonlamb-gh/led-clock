@@ -14,6 +14,7 @@
 #include "gl_headers.h"
 #include "gui_util.h"
 #include "render.h"
+#include "clock_state.h"
 #include "clock.h"
 
 static void render_base(
@@ -60,7 +61,7 @@ static void render_light_assembly(
         const clock_s * const clock)
 {
     unsigned long idx;
-    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
+    for(idx = 0; idx < CLOCK_DIGIT_LED_COUNT; idx += 1)
     {
         render_light(
                 &clock->lights[idx]);
@@ -88,7 +89,7 @@ static void init_lights(
     const GLdouble step = (360.0 / 12);
 
     unsigned long idx;
-    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
+    for(idx = 0; idx < CLOCK_DIGIT_LED_COUNT; idx += 1)
     {
         init_clock_light(
                 -(((GLdouble) idx) * step) + 90.0,
@@ -102,14 +103,16 @@ void clock_init(
     clock->base_w = CLOCK_WIDTH;
     clock->base_h = CLOCK_HEIGHT;
 
-    clock->ticks = 0;
-
     init_lights(clock);
+
+    clock_state_init(&clock->state);
 }
 
 void clock_display(
         const clock_s * const clock)
 {
+    // TODO - pwm -> rgba update GUI state
+
     render_base(clock);
 
     render_light_assembly(clock);
@@ -118,6 +121,9 @@ void clock_display(
 void clock_tick_inc(
         clock_s * const clock)
 {
+    clock_state_tick(&clock->state);
+
+    /*
     const unsigned long seconds = (clock->ticks / CLOCK_TICK_PER_SEC);
 
     const unsigned long index = (seconds / 5);
@@ -143,10 +149,11 @@ void clock_tick_inc(
         clock->ticks = 0;
         init_lights(clock);
     }
+    */
 
 /*
     unsigned long idx;
-    for(idx = 0; idx < CLOCK_LIGHT_COUNT; idx += 1)
+    for(idx = 0; idx < CLOCK_DIGIT_LED_COUNT; idx += 1)
     {
         clock->lights[idx].state += 1;
 
