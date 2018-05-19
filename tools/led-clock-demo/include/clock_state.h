@@ -27,6 +27,10 @@ typedef struct
 {
     uint16_t ticks; // reset every 60 seconds
     uint8_t enabled;
+
+    // TESTING
+    uint16_t prev_index;
+
     clock_digit_led_s digits[CLOCK_DIGIT_LED_COUNT];
 } clock_state_s;
 
