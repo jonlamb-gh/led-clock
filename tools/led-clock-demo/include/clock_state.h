@@ -17,6 +17,9 @@
 
 #define CLOCK_PWM_RESOLUTION (UINT16_MAX)
 
+#define CLOCK_PWM_DISABLED (0)
+//#define CLOCK_PWM_ENABLED (UINT16_MAX/2)
+
 // TODO - move into a .c/.h, methods for init, conversion, blending, etc ?
 typedef struct
 {
@@ -29,7 +32,7 @@ typedef struct
     uint8_t enabled;
 
     // TESTING
-    uint16_t prev_index;
+    uint16_t next_index;
 
     clock_digit_led_s digits[CLOCK_DIGIT_LED_COUNT];
 } clock_state_s;

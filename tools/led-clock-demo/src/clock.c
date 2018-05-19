@@ -75,21 +75,26 @@ static void convert_led_digit_color(
     if((led->rgb[0] == 0) && (led->rgb[1] == 0) && (led->rgb[2] == 0))
     {
         light->state = 0;
+
+        light->color.rgba[0] = 0.0;
+        light->color.rgba[1] = 0.0;
+        light->color.rgba[2] = 0.0;
+        light->color.rgba[3] = 0.0;
     }
     else
     {
         light->state = 1;
+
+        light->color.rgba[0] = ((GLdouble) led->rgb[0] / (GLdouble) CLOCK_PWM_RESOLUTION);
+        light->color.rgba[1] = ((GLdouble) led->rgb[1] / (GLdouble) CLOCK_PWM_RESOLUTION);
+        light->color.rgba[2] = ((GLdouble) led->rgb[2] / (GLdouble) CLOCK_PWM_RESOLUTION);
+
+        // TODO
+        light->color.rgba[3] = (light->color.rgba[0] + light->color.rgba[1] + light->color.rgba[2]);
+        light->color.rgba[3] = (light->color.rgba[3] / 3);
+
+        light->color.rgba[3] = CONSTRAIN(light->color.rgba[3], 0.6, 1.0);
     }
-
-    light->color.rgba[0] = ((GLdouble) led->rgb[0] / (GLdouble) CLOCK_PWM_RESOLUTION);
-    light->color.rgba[1] = ((GLdouble) led->rgb[1] / (GLdouble) CLOCK_PWM_RESOLUTION);
-    light->color.rgba[2] = ((GLdouble) led->rgb[2] / (GLdouble) CLOCK_PWM_RESOLUTION);
-
-    // TODO
-    light->color.rgba[3] = (light->color.rgba[0] + light->color.rgba[1] + light->color.rgba[2]);
-    light->color.rgba[3] = (light->color.rgba[3] / 3);
-
-    light->color.rgba[3] = CONSTRAIN(light->color.rgba[3], 0.6, 1.0);
 }
 
 static void init_clock_light(
