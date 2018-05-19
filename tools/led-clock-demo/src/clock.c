@@ -28,7 +28,8 @@ static void render_base(
 static void render_light(
         const clock_light_s * const light)
 {
-    glColor4d(1.0, 1.0, 1.0, 0.6);
+    glColor4d(0.1, 0.1, 0.1, 0.6);
+    //glColor4d(1.0, 1.0, 1.0, 0.6);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     render_circle_2d(
             light->pos.xy[0],

@@ -78,8 +78,6 @@ void clock_state_tick(
         // this is just for testing, bad index scheme
         const uint16_t prev_index = (index - 1) % CLOCK_DIGIT_LED_COUNT;
         
-        printf("%d %d\n", (int) index, (int) prev_index);
-
         if(index == 0)
         {
             state->digits[CLOCK_DIGIT_LED_COUNT - 1].rgb[0] = CLOCK_PWM_DISABLED;
