@@ -20,20 +20,41 @@
 #define CLOCK_PWM_DISABLED (0)
 //#define CLOCK_PWM_ENABLED (UINT16_MAX/2)
 
-// TODO - move into a .c/.h, methods for init, conversion, blending, etc ?
+typedef enum
+{
+    CLOCK_DIGIT_INDEX_SECONDS = 0,
+    CLOCK_DIGIT_INDEX_MINUTES,
+    CLOCK_DIGIT_INDEX_HOURS,
+    CLOCK_DIGIT_INDEX_KIND_COUNT
+} clock_digit_index_kind;
+
 typedef struct
 {
     uint16_t rgb[3];
 } clock_digit_led_s;
 
+// maybe
 typedef struct
 {
     uint16_t ticks; // reset every 60 seconds
+    uint16_t seconds;
+    uint16_t minutes;
+    uint16_t hours;
+} clock_time_s;
+
+typedef struct
+{
+    uint16_t prev;
+    uint16_t cur;
+    uint16_t next;
+    uint8_t color_channel;
+} clock_digit_indices_s;
+
+typedef struct
+{
     uint8_t enabled;
-
-    // TESTING
-    uint16_t next_index;
-
+    clock_time_s time;
+    clock_digit_indices_s indices[CLOCK_DIGIT_INDEX_KIND_COUNT];
     clock_digit_led_s digits[CLOCK_DIGIT_LED_COUNT];
 } clock_state_s;
 
